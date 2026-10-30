@@ -1,0 +1,53 @@
+{
+  "size": 1089605632,
+  "parts": [
+    {
+      "name": "model_q4f16.onnx_data.part000",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part001",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part002",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part003",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part004",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part005",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part006",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part007",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part008",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part009",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part010",
+      "size": 99000000
+    },
+    {
+      "name": "model_q4f16.onnx_data.part011",
+      "size": 605632
+    }
+  ]
+}
