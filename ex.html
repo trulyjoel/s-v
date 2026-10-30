@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Llama 3.2 1B Local Browser Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    #output { white-space: pre-wrap; background: #f4f4f4; padding: 15px; border-radius: 6px; margin-top: 15px; min-height: 100px; }
+    textarea { width: 100%; height: 60px; margin-top: 10px; }
+    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <h1>Llama-3.2-1B-Instruct (Local Files)</h1>
+  <p id="status">Initializing configuration...</p>
+
+  <textarea id="prompt" placeholder="Ask something...">What is the capital of France?</textarea>
+  <br>
+  <button id="generate" disabled>Generate</button>
+
+  <div id="output"></div>
+
+  <script type="module">
+    import { pipeline, env } from 'https://jsdelivr.net';
+
+    // 1. Tell Transformers.js to look locally instead of the Hugging Face Hub
+    env.allowLocalModels = true;
+    env.allowRemoteModels = false; // Disables downloading missing assets from the internet
+    
+    // Set this to the relative or absolute path of your local directory containing the model files
+    env.localModelPath = './models/'; 
+
+    const statusEl = document.getElementById('status');
+    const outputEl = document.getElementById('output');
+    const generateBtn = document.getElementById('generate');
+    const promptInput = document.getElementById('prompt');
+
+    // 2. Specify the directory name inside `env.localModelPath` 
+    const model_directory = 'Llama-3.2-1B-Instruct-ONNX';
+    let generator;
+
+    async function loadModel() {
+      try {
+        statusEl.textContent = 'Loading local ONNX model into WebGPU...';
+        generator = await pipeline('text-generation', model_directory, {
+          device: 'webgpu',
+        });
+        statusEl.textContent = 'Local model loaded and ready!';
+        generateBtn.disabled = false;
+      } catch (err) {
+        statusEl.textContent = 'Error loading local model: ' + err.message;
+        console.error(err);
+      }
+    }
+
+    loadModel();
+
+    generateBtn.addEventListener('click', async () => {
+      const text = promptInput.value;
+      if (!text || !generator) return;
+
+      outputEl.textContent = 'Generating...';
+      const messages = [
+        { role: 'user', content: text }
+      ];
+
+      const res = await generator(messages, {
+        max_new_tokens: 128,
+        temperature: 0.7,
+      });
+
+      outputEl.textContent = res.generated_text.at(-1).content;
+    });
+  </script>
+
+</body>
+</html>
+
