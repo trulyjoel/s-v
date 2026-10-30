@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Llama 3.2 1B Web Worker Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    #output { white-space: pre-wrap; background: #f4f4f4; padding: 15px; border-radius: 6px; margin-top: 15px; min-height: 100px; }
+    textarea { width: 100%; height: 60px; margin-top: 10px; }
+    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+    .loader { color: #555; font-style: italic; }
+  </style>
+</head>
+<body>
+
+  <h1>Llama-3.2-1B-Instruct (Background Worker)</h1>
+  <p id="status" class="loader">Initializing worker thread...</p>
+
+  <textarea id="prompt" placeholder="Ask something...">What is the capital of France?</textarea>
+  <br>
+  <button id="generate" disabled>Generate</button>
+
+  <div id="output"></div>
+
+  <script type="module">
+    const statusEl = document.getElementById('status');
+    const outputEl = document.getElementById('output');
+    const generateBtn = document.getElementById('generate');
+    const promptInput = document.getElementById('prompt');
+
+    // Initialize the Web Worker
+    const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+
+    // Instantly trigger model loading on the worker thread
+    worker.postMessage({ type: 'load' });
+
+    // Process incoming events from the background worker
+    worker.addEventListener('message', (event) => {
+      const { type, data } = event.data;
+
+      if (type === 'status') {
+        statusEl.textContent = data;
+      }
+
+      if (type === 'ready') {
+        statusEl.textContent = 'Local Model Ready (Running on background worker thread!)';
+        generateBtn.disabled = false;
+      }
+
+      if (type === 'result') {
+        outputEl.textContent = data;
+        generateBtn.disabled = false;
+      }
+
+      if (type === 'error') {
+        statusEl.textContent = 'Execution Error: ' + data;
+        generateBtn.disabled = false;
+        console.error(data);
+      }
+    });
+
+    // Handle button action
+    generateBtn.addEventListener('click', () => {
+      const text = promptInput.value;
+      if (!text) return;
+
+      generateBtn.disabled = true;
+      outputEl.textContent = 'Generating tokens off-thread... (UI remains responsive)';
+      
+      worker.postMessage({ type: 'generate', text });
+    });
+  </script>
+
+</body>
+</html>
+
